@@ -1,0 +1,32 @@
+name: CandyOS build
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate project generator
+        run: |
+          python -m py_compile build_candyos.py
+          python build_candyos.py
+          test -f CandyOS_Project/src/kernel/kernel.cpp
+          test -f CandyOS_Project/Makefile
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm grub-pc-bin grub-common xorriso gcc-multilib g++-multilib
+      - name: Build bootable ISO
+        run: |
+          cd CandyOS_Project
+          make check
+          make iso
+          test -s build/CandyOS.iso
