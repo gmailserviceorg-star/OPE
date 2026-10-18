@@ -253,6 +253,12 @@ static void present(){
  if(!framebuffer)return;
  for(u32 y=0;y<screenH;++y){volatile u32*dst=(volatile u32*)((u8*)framebuffer+y*fbPitch);for(u32 x=0;x<screenW;++x)dst[x]=back[y*screenW+x];}
 }
+static void numberText(int x,int y,int value,u32 c,int scale=1){
+ char digits[12];int n=0;
+ if(value==0)digits[n++]='0';
+ while(value>0&&n<10){digits[n++]=(char)('0'+value%10);value/=10;}
+ for(int i=n-1;i>=0;--i)drawChar(x+(n-1-i)*4*scale,y,digits[i],c,scale);
+}
 enum App{BROWSER=0,FILES=1,TERMINAL=2,EDITOR=3,PAINT=4,CALCULATOR=5,SETTINGS=6,DUNGEONS=7};
 struct Window{bool open;int x,y,w,h;};
 static Window wins[8];
@@ -343,7 +349,7 @@ static void drawBox3(int x,int y,int z,int w,int h,int d,u32 color){
 static int cubeDepth(int x,int y,int z){
  P2 p=project3(x+128,y+128,z+128);return p.depth;
 }
-static int tileHash(int x,int y){int h=x*374761393+y*668265263;h=(h^(h>>13))*1274126177;return h^(h>>16);}
+static int tileHash(int x,int y){u32 h=(u32)x*374761393u+(u32)y*668265263u;h=(h^(h>>13))*1274126177u;return (int)(h^(h>>16));}
 static void buildScene(){
  sceneCubeCount=0;int centerX=playerX/256,centerY=playerY/256;
  for(int ty=centerY-8;ty<=centerY+8;++ty)for(int tx=centerX-8;tx<=centerX+8;++tx){
@@ -441,7 +447,7 @@ static void drawDungeons(int x,int y,int w,int h){
  if(attackFlash){rect(x+w/2-48,y+h-76,96,18,0x00CDA96A);text(x+w/2-26,y+h-71,"STRIKE!",0x00222222,1);}
  if(playerHealth==0){rect(x+w/2-82,y+h/2-14,164,32,0x00A02F39);text(x+w/2-64,y+h/2-4,"YOU HAVE FALLEN",0x00FFFFFF,1);text(x+w/2-58,y+h/2+29,"PRESS R TO RETURN",0x00FFFFFF,1);}
  rect(x+5,y+h-24,w-10,20,0xD015202B);text(x+12,y+h-18,"WASD MOVE  |  MOUSE LOOK  |  SPACE/CLICK ATTACK",0x00E6E9E7,1);
- text(x+w-97,y+h-18,"RELICS",0x00EED6A2,1);
+ text(x+w-110,y+h-18,"RELICS",0x00EED6A2,1);numberText(x+w-56,y+h-18,dungeonScore,0x00EED6A2,1);
  clipX=0;clipY=0;clipW=(int)screenW;clipH=(int)screenH;
 }
 static void background(){
@@ -645,12 +651,6 @@ extern "C" void kernel_main(u32 magic,u32 infoAddr){
  if(!framebuffer||screenW<640||screenH<480||screenW>1280||screenH>800)for(;;)__asm__ volatile("hlt");
  mouseX=(int)screenW/2;mouseY=(int)screenH/2;mouseInit();render();
  for(;;){pollInput();updateDungeons();render();pauseTiny();}
-}(u32 magic,u32 infoAddr){
- __asm__ volatile("cli");if(magic!=0x2BADB002||!infoAddr)for(;;)__asm__ volatile("hlt");
- MultibootInfo*mb=(MultibootInfo*)infoAddr;if(!(mb->flags&(1u<<12))||mb->framebuffer_type!=1||mb->framebuffer_bpp!=32)for(;;)__asm__ volatile("hlt");
- framebuffer=(u32*)(u32)mb->framebuffer_addr;fbPitch=mb->framebuffer_pitch;screenW=mb->framebuffer_width;screenH=mb->framebuffer_height;
- if(!framebuffer||screenW<640||screenH<480||screenW>1280||screenH>800)for(;;)__asm__ volatile("hlt");
- mouseX=(int)screenW/2;mouseY=(int)screenH/2;mouseInit();render();for(;;){pollInput();render();pauseTiny();}
 }
 """,
 "README.md": r"""
