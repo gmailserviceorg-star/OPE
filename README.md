@@ -12,7 +12,7 @@ python build_myos.py
 
 It writes a `MyOS_Project` directory on your Desktop (or in the current directory if no Desktop directory exists), including x86 boot assembly, a freestanding C/C++ kernel, framebuffer GUI, GRUB configuration, linker script, and Makefile. No source dependencies are downloaded by the generator.
 
-Install NASM, GRUB utilities (`grub-mkrescue`), xorriso, QEMU, and preferably an `i686-elf` cross-toolchain. Then run in the generated folder:
+Install NASM, GRUB utilities (`grub-mkrescue`), xorriso, mtools, QEMU, and preferably an `i686-elf` cross-toolchain. Then run in the generated folder:
 
 ```bash
 make check
