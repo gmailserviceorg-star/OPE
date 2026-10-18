@@ -206,7 +206,7 @@ static u32 *framebuffer=0, fbPitch=0, screenW=1024, screenH=768;
 static u32 back[1280*800];
 static int mouseX=300,mouseY=220,mouseButtons=0,oldButtons=0;
 static bool menuOpen=false,alternateWallpaper=false,animations=true;
-static int activeWindow=-1,dragWindow=-1,dragDX=0,dragDY=0;
+static int activeWindow=-1,dragWindow=-1,dragDX=0,dragDY=0,resizeWindow=-1,resizeDX=0,resizeDY=0,menuAnim=0;
 static int paintColor=0x00E4A85B;
 static int paintX[512],paintY[512],paintCount=0;
 static char terminalInput[128],editorText[512],calcInput[64],browserAddress[96]="aether.local/welcome";
@@ -505,9 +505,12 @@ static void drawWindow(int app){
  else if(app==PAINT){text(x,y,"PALETTE",0x003E5E77,1);for(int i=0;i<4;++i)rect(x+58+i*24,y-2,18,15,i==0?0x00E4A85B:i==1?0x00D75E67:i==2?0x004E96D8:0x00369B79);rect(x-4,y+21,a.w-20,a.h-75,0x00FFFFFF);frame(x-4,y+21,a.w-20,a.h-75,0x00CAD4DE);for(int i=0;i<paintCount;++i)for(int q=0;q<4;++q)pixel(paintX[i]+q%2,paintY[i]+q/2,paintColor);text(x,y+a.h-31,"DRAG THE MOUSE TO DRAW",0x0061707C,1);}
  else if(app==CALCULATOR){rect(x,y,a.w-24,27,0x00FFFFFF);frame(x,y,a.w-24,27,0x00C7D0D8);text(x+6,y+8,calcLen?calcInput:"0",0x00334657,2);const char*keys="789/456*123-0.=+";for(int i=0;i<16;++i){int bx=x+(i%4)*46,by=y+38+(i/4)*29;rect(bx,by,40,24,(keys[i]=='/'||keys[i]=='*'||keys[i]=='-'||keys[i]=='+')?0x00DCE8F2:0x00FFFFFF);frame(bx,by,40,24,0x00C7D0D8);char label[2]={keys[i],0};text(bx+14,by+8,label,0x00334657,1);}}
  else{text(x,y,"AETHEROS SETTINGS",0x003E5E77,1);text(x,y+28,"VIDEO: GRUB LINEAR FRAMEBUFFER",0x00334657,1);text(x,y+49,"INPUT: PS/2 KEYBOARD + MOUSE",0x00334657,1);text(x,y+70,animations?"ANIMATIONS: ON":"ANIMATIONS: OFF",0x00334657,1);rect(x,y+96,150,27,C_ACCENT);text(x+10,y+105,"CHANGE WALLPAPER",0x00FFFFFF,1);text(x,y+139,"CLICK TO TOGGLE THE DESKTOP THEME",0x0061707C,1);}
+ rect(a.x+a.w-9,a.y+a.h-8,2,6,0x007B8D9F);rect(a.x+a.w-7,a.y+a.h-6,5,2,0x007B8D9F);
 }
 static void drawStartMenu(){
- if(!menuOpen)return;int x=10,y=(int)screenH-42-294;
+ if(!menuOpen){menuAnim=0;return;}
+ if(animations&&menuAnim<6)++menuAnim;
+ int x=10,y=(int)screenH-42-294+(animations?(6-menuAnim)*6:0);
  rect(x+4,y+5,232,294,0x00304050);rect(x,y,232,294,0x00F0F3F6);frame(x,y,232,294,0x00AAB7C2);
  rect(x,y,232,37,0x002D4E6A);text(x+12,y+13,"AETHEROS APPS",0x00FFFFFF,2);
  for(int i=0;i<8;++i){drawIcon(x+10,y+43+i*30,i);text(x+63,y+56+i*30,appNames[i],0x002A3F51,1);}
@@ -594,7 +597,12 @@ static void mouseInit(){
  for(int i=0;i<10000&&(inb(0x64)&1);++i)(void)inb(0x60);
 }
 static void handleClick(int x,int y){
- if(y>(int)screenH-42&&x<88){menuOpen=!menuOpen;return;}
+ if(y>(int)screenH-42){
+  if(x<88){menuOpen=!menuOpen;return;}
+  int taskX=92;
+  for(int i=0;i<8;++i)if(wins[i].open){int taskW=appNames[i][0]=='D'?84:78;if(x>=taskX&&x<taskX+taskW){activeWindow=i;menuOpen=false;return;}taskX+=taskW+3;}
+  return;
+ }
  if(menuOpen){
   int top=(int)screenH-42-294;
   if(x>=10&&x<242&&y>=top+39&&y<top+290){int app=(y-(top+40))/30;if(app>=0&&app<8)openApp(app);menuOpen=false;return;}
@@ -603,7 +611,8 @@ static void handleClick(int x,int y){
  int hit=windowAt(x,y);
  if(hit>=0){
   activeWindow=hit;Window&a=wins[hit];
-  if(y<a.y+30){browserInputFocus=false;if(x>a.x+a.w-28){a.open=false;activeWindow=-1;return;}dragWindow=hit;dragDX=x-a.x;dragDY=y-a.y;return;}
+  if(y<a.y+30){browserInputFocus=false;if(x>a.x+a.w-28){a.open=false;activeWindow=-1;resizeWindow=-1;return;}dragWindow=hit;dragDX=x-a.x;dragDY=y-a.y;return;}
+  if(x>=a.x+a.w-12&&y>=a.y+a.h-12){resizeWindow=hit;resizeDX=mouseX-(a.x+a.w);resizeDY=mouseY-(a.y+a.h);return;}
   if(hit==BROWSER){
    int bx=a.x+12,by=a.y+44;
    if(y>=by&&y<by+24){
@@ -640,8 +649,16 @@ static void pollInput(){
      if(mouseTurn>=5){playerYaw=(playerYaw+1)&15;mouseTurn=0;}
      else if(mouseTurn<=-5){playerYaw=(playerYaw+15)&15;mouseTurn=0;}
     }
-    if((mouseButtons&1)&&dragWindow>=0){wins[dragWindow].x=mouseX-dragDX;wins[dragWindow].y=mouseY-dragDY;}
-    else if(!(mouseButtons&1))dragWindow=-1;
+    if(mouseButtons&1){
+    if(resizeWindow>=0){
+     Window &rw=wins[resizeWindow];int minW=resizeWindow==DUNGEONS?480:250,minH=resizeWindow==DUNGEONS?330:150;
+     int nw=mouseX-rw.x-resizeDX,nh=mouseY-rw.y-resizeDY;
+     if(nw<minW)nw=minW;if(nh<minH)nh=minH;
+     if(nw>(int)screenW-rw.x)nw=(int)screenW-rw.x;
+     if(nh>(int)screenH-42-rw.y)nh=(int)screenH-42-rw.y;
+     rw.w=nw;rw.h=nh;
+    }else if(dragWindow>=0){wins[dragWindow].x=mouseX-dragDX;wins[dragWindow].y=mouseY-dragDY;}
+   }else{dragWindow=-1;resizeWindow=-1;}
     if((mouseButtons&1)&&!(oldButtons&1))handleClick(mouseX,mouseY);
     else if((mouseButtons&1)&&activeWindow==PAINT&&paintCount<512){Window a=wins[PAINT];if(mouseX>a.x+8&&mouseX<a.x+a.w-8&&mouseY>a.y+65&&mouseY<a.y+a.h-15){paintX[paintCount]=mouseX;paintY[paintCount++]=mouseY;}}
    }
