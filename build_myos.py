@@ -39,6 +39,7 @@ all: iso
 check:
 	@command -v $(NASM) >/dev/null || { echo "Missing NASM. Install NASM and retry."; exit 1; }
 	@command -v $(GRUB_MKRESCUE) >/dev/null || { echo "Missing grub-mkrescue. Install GRUB utilities and xorriso."; exit 1; }
+	@command -v mformat >/dev/null || { echo "Missing mformat (mtools). Install mtools."; exit 1; }
 	@command -v $(CXX) >/dev/null || { echo "Missing C++ compiler: $(CXX)"; exit 1; }
 	@command -v $(LD) >/dev/null || { echo "Missing linker: $(LD)"; exit 1; }
 	@command -v qemu-system-i386 >/dev/null || echo "Note: QEMU is not installed; ISO can still be built."
