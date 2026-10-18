@@ -653,26 +653,68 @@ extern "C" void kernel_main(u32 magic,u32 infoAddr){
  for(;;){pollInput();updateDungeons();render();pauseTiny();}
 }
 """,
-"README.md": r"""
-# AetherOS Project
+"DUNGEONS.md": r"""
+# Dungeons: The Forgotten Realm
 
-AetherOS is an experimental 32-bit x86 graphical-kernel starter. It boots through GRUB Multiboot, requests a 1024x768x32 framebuffer, draws a software-composited desktop, and polls PS/2 input.
+Dungeons is a built-in, third-person voxel RPG prototype inside AetherOS. The kernel software-renders a block landscape, a back-facing player avatar, ruins, trees, and two moving enemies.
+
+## Controls
+- **W / A / S / D** — move relative to the camera
+- **Mouse movement** — turn the camera while the pointer is inside the game viewport
+- **Space or click in the scene** — attack enemies
+- **R** — return after being defeated
+
+## Creatures
+- **Iron Guard** — armored melee sentinel with a large health bar; defeating it awards 100 relic points.
+- **Ghosty Fly** — hovering spirit with pale wings and bright eyes; defeating it awards 50 relic points.
+
+The world is procedurally assembled from block coordinates. This is an early kernel-level gameplay prototype: movement, pursuit, health, attacks, and score work locally, while saved worlds, sound, procedural quests, inventory, multiplayer, and a richer physics system are not implemented yet.
+""",
+"docs/ARCHITECTURE.md": r"""
+# AetherOS Architecture
+
+AetherOS currently starts through GRUB Multiboot 1 in 32-bit protected mode. GRUB is asked for a linear 32-bit framebuffer. The kernel owns a back buffer and copies each rendered frame into the framebuffer.
+
+- `src/boot/boot.asm` sets a stack and calls `kernel_main`.
+- `src/kernel/kernel.cpp` contains the desktop compositor, polled PS/2 keyboard and mouse input, simple window manager, local browser pages, and the Dungeons software renderer.
+- `src/lib/memory.c` supplies the freestanding memory/string routines used by the kernel.
+- `Makefile`, `linker.ld`, and `grub.cfg` build the kernel ELF and bootable ISO.
+
+## Current limitations
+
+The browser is a local-page viewer, not a public-web browser. There is no TCP/IP, DNS, TLS/HTTPS, real HTTP client, persistent filesystem, user mode, paging, or IRQ-based input yet. The prototype targets QEMU and compatible legacy-BIOS systems. A full 3D GPU pipeline is not present; Dungeons uses software-projected voxel-style boxes drawn by the kernel.
+""",
+"README.md": r"""
+# AetherOS
+
+AetherOS is an experimental 32-bit x86 desktop kernel with a software-rendered GUI, movable application windows, a polled PS/2 mouse and keyboard, a local-only browser, and the built-in **Dungeons: The Forgotten Realm** third-person voxel RPG prototype.
 
 ## Build and run
 
-Install NASM, GRUB utilities (grub-mkrescue and grub-file), xorriso, QEMU, and preferably an i686-elf cross-compiler. Then run these commands in this folder:
+Install NASM, GRUB utilities (`grub-mkrescue` and `grub-file`), xorriso, mtools, QEMU, and preferably an `i686-elf` cross-compiler. From this generated folder:
 
     make check
     make iso
     make run
 
-A host GCC/G++ -m32 fallback is attempted, but a cross-toolchain is more reliable. On Windows, use a Linux environment such as WSL with the required packages installed.
+The ISO is created at `build/AetherOS.iso`. On Windows, use a Linux environment such as WSL with the packages installed.
 
-## Current scope
+## Desktop and applications
 
-The GUI has desktop icons, a start menu, movable windows, a local welcome page in the browser window, RAM-style demo file listings, a simple terminal (help, ls, clear, about, echo, reboot, shutdown), an in-memory text editor, paint surface, calculator, and a wallpaper setting.
+The desktop includes a start menu, draggable windows, wallpaper settings, file-list demo, terminal, text editor, paint surface, calculator, browser, and Dungeons. The terminal supports `help`, `ls`, `clear`, `about`, `echo`, `dungeons`, `reboot`, and `shutdown`.
 
-This is a starter kernel, not a finished general-purpose OS. The browser is local-only; TCP/IP, DNS, real HTTP, full HTML/CSS, a real filesystem, user mode, virtual-memory paging, IRQ-driven input, and robust device discovery are not implemented yet. It targets legacy-BIOS x86/GRUB under emulators first. Hardware behavior can differ by machine.
+## Dungeons controls
+
+- **W / A / S / D** move relative to the camera.
+- **Mouse movement** turns the camera when the cursor is over the game.
+- **Space or click in the scene** attacks.
+- **R** returns after defeat.
+
+Enemies include the **Iron Guard** and **Ghosty Fly**. The game features a software-rendered voxel landscape, a third-person avatar, enemy pursuit, health bars, and relic points.
+
+## Scope and honesty
+
+This is a bootable starter kernel, not a production operating system. The browser shows embedded local pages only; it cannot yet access public websites. TCP/IP, DNS, TLS/HTTPS, real HTTP, a complete HTML engine, persistent filesystem, user mode, virtual-memory paging, IRQ-based input, audio, save files, and advanced game physics are future work. The game is a kernel-level prototype and currently has no Minecraft assets or code.
 """
 }
 
