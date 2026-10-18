@@ -1,25 +1,36 @@
-# MyOS
+# AetherOS
 
-MyOS is an independent hobby operating-system project based on the bootable x86 GUI specification supplied for this repository. It is separate from any other operating-system projects in the account.
+AetherOS is a bootable 32-bit x86 graphical-kernel experiment with a software-rendered desktop, mouse and keyboard input, an embedded local-page browser, and the built-in **Dungeons: The Forgotten Realm** third-person voxel RPG.
 
-## Generate the project
+## Generate the OS source tree
 
-Run the single-file Python generator:
+Run the standalone Python generator:
 
 ```bash
-python build_myos.py
+python forge_aetheros.py
 ```
 
-It writes a `MyOS_Project` directory on your Desktop (or in the current directory if no Desktop directory exists), including x86 boot assembly, a freestanding C/C++ kernel, framebuffer GUI, GRUB configuration, linker script, and Makefile. No source dependencies are downloaded by the generator.
+It creates a folder named **AetherOS** on your Desktop (or in the current directory if no Desktop folder exists). The generator writes all project source inline; it does not download OS source dependencies.
 
-Install NASM, GRUB utilities (`grub-mkrescue`), xorriso, mtools, QEMU, and preferably an `i686-elf` cross-toolchain. Then run in the generated folder:
+## Build and run
+
+Install NASM, GRUB utilities (`grub-mkrescue` and `grub-file`), xorriso, mtools, QEMU, and preferably an `i686-elf` cross-compiler. Then enter the generated folder and run:
 
 ```bash
+cd AetherOS
 make check
 make iso
 make run
 ```
 
-## Status and limitations
+The ISO is built at `build/AetherOS.iso`.
 
-This is an experimental 32-bit x86 graphical-kernel starter, not a production OS. The current browser window shows embedded local content; TCP/IP, DNS/HTTP, a full HTML engine, a persistent filesystem, user mode, virtual-memory paging, and interrupt-driven input remain future work. It targets legacy BIOS and GRUB under emulators first.
+## Dungeons
+
+Dungeons is an original, in-kernel voxel-style RPG prototype with a third-person avatar, camera movement, health, enemy pursuit, attacks, and relic score. Its current mobs are **Iron Guard** and **Ghosty Fly**.
+
+Controls: **W/A/S/D** to move, **mouse movement** to look, **Space or click** to attack, and **R** to restart after defeat.
+
+## Important limitations
+
+The kernel renders its own GUI to the framebuffer; it is not a webpage disguised as an OS. The browser currently supports embedded local pages only and cannot browse the public internet. Networking (TCP/IP, DNS, TLS/HTTPS, real HTTP), persistent storage, user mode, paging, IRQ-driven input, audio, saved game worlds, and advanced game physics are not implemented yet. The target is legacy BIOS/GRUB under QEMU and compatible hardware.
