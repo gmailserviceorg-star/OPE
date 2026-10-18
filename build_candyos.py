@@ -157,6 +157,26 @@ int memcmp(const void *a, const void *b, size_t n) {
     for (size_t i = 0; i < n; ++i) if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
     return 0;
 }
+char *strcpy(char *dst, const char *src) {
+    char *out = dst;
+    while ((*dst++ = *src++)) {}
+    return out;
+}
+char *strncpy(char *dst, const char *src, size_t n) {
+    char *out = dst;
+    size_t i = 0;
+    for (; i < n && src[i]; ++i) dst[i] = src[i];
+    for (; i < n; ++i) dst[i] = 0;
+    return out;
+}
+int strncmp(const char *a, const char *b, size_t n) {
+    for (size_t i = 0; i < n; ++i) {
+        unsigned char x = (unsigned char)a[i], y = (unsigned char)b[i];
+        if (x != y) return (int)x - (int)y;
+        if (!x) return 0;
+    }
+    return 0;
+}
 size_t strlen(const char *s) { size_t n = 0; while (s[n]) ++n; return n; }
 int strcmp(const char *a, const char *b) {
     while (*a && *a == *b) { ++a; ++b; }
@@ -240,7 +260,7 @@ static int windowAt(int x,int y){
 }
 static void background(){
  for(u32 y=0;y<screenH;++y){int r=alternateWallpaper?19:22,g=alternateWallpaper?59:51,b=alternateWallpaper?69:72;u32 c=rgb(r+(int)(y*18/screenH),g+(int)(y*39/screenH),b+(int)(y*58/screenH));for(u32 x=0;x<screenW;++x)back[y*screenW+x]=c;}
- for(int i=0;i<5;++i)rect((int)(screenW*.54)+i*24,40+i*27,260-i*22,2,0x00364D61);
+ for(int i=0;i<5;++i)rect((int)(screenW*54/100)+i*24,40+i*27,260-i*22,2,0x00364D61);
  text(28,22,"CANDYOS",0x00FFFFFF,3);text(29,45,"A SMALL X86 DESKTOP",0x00C4D8E8,1);
 }
 static void drawIcon(int x,int y,int app){
