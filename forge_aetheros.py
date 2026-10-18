@@ -539,11 +539,16 @@ static char keyChar(u8 sc){
  case 0x1E:return 'a';case 0x1F:return 's';case 0x20:return 'd';case 0x21:return 'f';case 0x22:return 'g';case 0x23:return 'h';case 0x24:return 'j';case 0x25:return 'k';case 0x26:return 'l';case 0x27:return ';';case 0x28:return '\'';case 0x2C:return 'z';case 0x2D:return 'x';case 0x2E:return 'c';case 0x2F:return 'v';case 0x30:return 'b';case 0x31:return 'n';case 0x32:return 'm';case 0x33:return ',';case 0x34:return '.';case 0x35:return '/';case 0x39:return ' ';case 0x0E:return '\b';case 0x1C:return '\n';default:return 0;
  }
 }
+static bool hasText(const char *s,const char *needle){
+ if(!*needle)return true;
+ for(int i=0;s[i];++i){int j=0;while(needle[j]&&s[i+j]==needle[j])++j;if(!needle[j])return true;}
+ return false;
+}
 static void browserNavigate(){
  browserInputFocus=false;browserPage=3;
- if(__builtin_strstr(browserAddress,"guide")||__builtin_strstr(browserAddress,"help"))browserPage=1;
- else if(__builtin_strstr(browserAddress,"dungeons"))browserPage=2;
- else if(__builtin_strstr(browserAddress,"aether.local")||__builtin_strstr(browserAddress,"home"))browserPage=0;
+ if(hasText(browserAddress,"guide")||hasText(browserAddress,"help"))browserPage=1;
+ else if(hasText(browserAddress,"dungeons"))browserPage=2;
+ else if(hasText(browserAddress,"aether.local")||hasText(browserAddress,"home"))browserPage=0;
 }
 static void browserInput(char c){
  if(c=='\n'){browserNavigate();return;}
