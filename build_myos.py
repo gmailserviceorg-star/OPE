@@ -210,7 +210,7 @@ static int paintColor=0x00E4A85B;
 static int paintX[512],paintY[512],paintCount=0;
 static char terminalInput[128],editorText[512],calcInput[64];
 static int terminalLen=0,editorLen=0,calcLen=0;
-static char terminalOutput[4][72]={"CANDYOS TERMINAL","Type HELP for commands.","",""};
+static char terminalOutput[4][72]={"MYOS TERMINAL","Type HELP for commands.","",""};
 static const u32 C_ACCENT=0x004E96D8, C_DARK=0x00101822;
 static const char FONTCHARS[]="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:/!?()[]";
 static const char FONTDATA[]=
@@ -261,7 +261,7 @@ static int windowAt(int x,int y){
 static void background(){
  for(u32 y=0;y<screenH;++y){int r=alternateWallpaper?19:22,g=alternateWallpaper?59:51,b=alternateWallpaper?69:72;u32 c=rgb(r+(int)(y*18/screenH),g+(int)(y*39/screenH),b+(int)(y*58/screenH));for(u32 x=0;x<screenW;++x)back[y*screenW+x]=c;}
  for(int i=0;i<5;++i)rect((int)(screenW*54/100)+i*24,40+i*27,260-i*22,2,0x00364D61);
- text(28,22,"CANDYOS",0x00FFFFFF,3);text(29,45,"A SMALL X86 DESKTOP",0x00C4D8E8,1);
+ text(28,22,"MYOS",0x00FFFFFF,3);text(29,45,"A SMALL X86 DESKTOP",0x00C4D8E8,1);
 }
 static void drawIcon(int x,int y,int app){
  u32 c=app==BROWSER?0x004BB6C9:app==FILES?0x00D8B65C:app==TERMINAL?0x00222A36:app==EDITOR?0x007F9DD0:app==PAINT?0x00D87D6C:app==CALCULATOR?0x0071B88B:0x009C8BD5;
@@ -285,7 +285,7 @@ static void drawWindow(int app){
  rect(a.x,a.y,a.w,30,app==activeWindow?C_ACCENT:0x005C6B7B);text(a.x+10,a.y+10,appNames[app],0x00FFFFFF,2);
  rect(a.x+a.w-25,a.y+5,18,19,0x00C95C57);text(a.x+a.w-20,a.y+11,"X",0x00FFFFFF,1);
  rect(a.x+1,a.y+31,a.w-2,a.h-32,0x00F4F6F8);int x=a.x+12,y=a.y+44;
- if(app==BROWSER){rect(x,y,a.w-24,25,0x00FFFFFF);frame(x,y,a.w-24,25,0x00C7D0D8);text(x+6,y+8,"candy.local/welcome",0x004B657A,1);text(x,y+40,"WELCOME TO CANDYOS",0x002A537A,2);multiline(x,y+61,"This page is stored inside the kernel.\nThe next milestone is a real network\nstack and a fuller HTML renderer.",0x00334657,a.w-28,1);}
+ if(app==BROWSER){rect(x,y,a.w-24,25,0x00FFFFFF);frame(x,y,a.w-24,25,0x00C7D0D8);text(x+6,y+8,"myos.local/welcome",0x004B657A,1);text(x,y+40,"WELCOME TO MYOS",0x002A537A,2);multiline(x,y+61,"This page is stored inside the kernel.\nThe next milestone is a real network\nstack and a fuller HTML renderer.",0x00334657,a.w-28,1);}
  else if(app==FILES){text(x,y,"RAM DISK",0x002A537A,2);text(x+5,y+32,"[DIR]  /",0x004B657A,1);text(x+15,y+52,"README.TXT",0x00334657,1);text(x+15,y+70,"ABOUT.TXT",0x00334657,1);text(x+15,y+88,"NOTES.TXT",0x00334657,1);text(x,y+124,"Files are demo entries in RAM.",0x0061707C,1);}
  else if(app==TERMINAL){rect(x-4,y-5,a.w-16,a.h-49,0x00121A22);for(int i=0;i<4;++i)text(x,y+i*17,terminalOutput[i],0x007DE0A3,1);text(x,y+78,"CANDY:/ >",0x007DE0A3,1);text(x+68,y+78,terminalInput,0x00FFFFFF,1);}
  else if(app==EDITOR){text(x,y,"UNTITLED.TXT | RAM",0x003E5E77,1);rect(x-3,y+19,a.w-20,a.h-74,0x00FFFFFF);frame(x-3,y+19,a.w-20,a.h-74,0x00D3DCE4);multiline(x,y+27,editorText,0x002E4050,a.w-38,1);text(x,y+a.h-31,"TYPE TO EDIT - ENTER NEW LINE",0x0061707C,1);}
@@ -294,7 +294,7 @@ static void drawWindow(int app){
  else{text(x,y,"SYSTEM SETTINGS",0x003E5E77,1);text(x,y+28,"RESOLUTION: FRAMEBUFFER",0x00334657,1);text(x,y+49,"MODE: 32-BIT PROTECTED",0x00334657,1);text(x,y+70,animations?"ANIMATIONS: ON":"ANIMATIONS: OFF",0x00334657,1);rect(x,y+96,150,27,C_ACCENT);text(x+10,y+105,"CHANGE WALLPAPER",0x00FFFFFF,1);text(x,y+139,"CLICK BUTTON TO CHANGE COLOR",0x0061707C,1);}
 }
 static void drawStartMenu(){
- if(!menuOpen)return;int x=10,y=(int)screenH-42-264;rect(x+4,y+5,220,264,0x00304050);rect(x,y,220,264,0x00F0F3F6);frame(x,y,220,264,0x00AAB7C2);rect(x,y,220,37,0x002D4E6A);text(x+12,y+13,"CANDYOS APPS",0x00FFFFFF,2);
+ if(!menuOpen)return;int x=10,y=(int)screenH-42-264;rect(x+4,y+5,220,264,0x00304050);rect(x,y,220,264,0x00F0F3F6);frame(x,y,220,264,0x00AAB7C2);rect(x,y,220,37,0x002D4E6A);text(x+12,y+13,"MYOS APPS",0x00FFFFFF,2);
  for(int i=0;i<7;++i){drawIcon(x+10,y+45+i*30,i);text(x+63,y+58+i*30,appNames[i],0x002A3F51,1);}
 }
 static void drawCursor(){for(int i=0;i<13;++i)for(int j=0;j<=i/2;++j)pixel(mouseX+j,mouseY+i,0x00FFFFFF);for(int i=1;i<12;++i)pixel(mouseX+i/2,mouseY+i,0x00101822);}
@@ -307,7 +307,7 @@ static void terminalCommand(){
  if(!terminalLen)return;terminalInput[terminalLen]=0;
  if(!__builtin_strcmp(terminalInput,"help"))__builtin_strcpy(terminalOutput[0],"HELP LS CLEAR ABOUT ECHO REBOOT");
  else if(!__builtin_strcmp(terminalInput,"ls"))__builtin_strcpy(terminalOutput[0],"/ README.TXT ABOUT.TXT NOTES.TXT");
- else if(!__builtin_strcmp(terminalInput,"about"))__builtin_strcpy(terminalOutput[0],"CANDYOS X86 GUI KERNEL");
+ else if(!__builtin_strcmp(terminalInput,"about"))__builtin_strcpy(terminalOutput[0],"MYOS X86 GUI KERNEL");
  else if(!__builtin_strncmp(terminalInput,"echo ",5)){__builtin_strncpy(terminalOutput[0],terminalInput+5,70);terminalOutput[0][70]=0;}
  else if(!__builtin_strcmp(terminalInput,"clear"))terminalOutput[0][0]=0;
  else if(!__builtin_strcmp(terminalInput,"reboot")||!__builtin_strcmp(terminalInput,"shutdown")){__asm__ volatile("cli");for(;;)__asm__ volatile("hlt");}
