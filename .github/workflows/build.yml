@@ -23,7 +23,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm grub-pc-bin grub-common xorriso gcc-multilib g++-multilib
+          sudo apt-get install -y nasm grub-pc-bin grub-common xorriso mtools gcc-multilib g++-multilib
       - name: Build bootable ISO
         run: |
           cd MyOS_Project
